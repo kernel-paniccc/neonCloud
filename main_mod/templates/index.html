@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block titel %}myCloud{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid mt-4 text-end">
+        <div class="row justify-content-end gx-3">
+
+            <div class="col-auto">
+                <h4 >{{ username }}</h4>
+            </div>
+
+            <div class="col-auto">
+            <a href="/logout" style="color: aquamarine;border: 3px solid aquamarine;font-family:'Archivo Black';"
+               role="button" class="btn btn-sm btn-dark logoutbtn">
+                <div class="main_text">
+                    Logout
+                </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+<div class="container-fluid text-center">
+      <div class="row align-items-start">
+          <div class="row gy-4">
+              <h1 style="font-size: 70px" class="main_text">
+                  Simple Data Store
+              </h1>
+          </div>
+      </div>
+  </div>
+
+  <div class="container-fluid text-center">
+      <div class="row text-justify-center">
+          <div class="col-md-6 offset-md-3">
+                  <br><br>
+              <form method="post" enctype="multipart/form-data">
+                  <div>
+                      <input class="form-control form-control-lg" id="formFileLg" type="file" name="file"
+                      ><br>
+                      <button type="submit" style=" --bs-btn-padding-y: 0.6rem; --bs-btn-padding-x: 8rem; --bs-btn-font-size: 1.4rem;
+                      color: aquamarine; border: 3px solid aquamarine; font-family:'Archivo Black';"  type="button" class="btn btn-dark">
+                          send
+                       </button>
+                  </div>
+              </form>
+
+              {% for cat, msg in get_flashed_messages(True) %}
+              <div id ="popup" class="flash {{cat}}"><h3><b>{{msg}}</b></h3></div>
+              {% endfor %}
+          </div>
+      </div>
+  </div>
+  <script src="../static/script_for_flash.js"></script>
+{% endblock %}

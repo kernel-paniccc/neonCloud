@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&display=swap');
+
+body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    .footer {
+        margin-top: auto;
+        padding: 15px 0;
+    }
+         .text-justify {
+             text-align: justify;
+         }
+
+         * {
+  padding: 0;
+  margin: 0;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.main_text{
+    color: aquamarine;
+    font-family: 'Archivo Black';
+    text-shadow: 0 0 10px
+}
+
+.flash {padding: 10px;}
+
+.flash.success {
+    color: #00f045;
+    font-family: 'Verdana';
+    -moz-text-shadow:0 0 20px #00f045;
+    -webkit-text-shadow:0 0 20px #00f045;
+    text-shadow:0 0 20px #00f045;
+}
+.flash.error {
+    color: #cb1300;
+    font-family: 'Verdana';
+    -moz-text-shadow:0 0 20px #cb1300;
+    -webkit-text-shadow:0 0 20px #cb1300;
+    text-shadow:0 0 20px #cb1300;
+
+}
