@@ -1,13 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<div class="container-fluid mt-4 text-end">
+    <div class="row justify-content-end gx-3">
+        <div class="col-auto">
+            <a href="/" style="color: aquamarine;border: 3px solid aquamarine;font-family:'Archivo Black';"
+               role="button" class="btn btn-sm btn-dark logoutbtn">
+                <div class="main_text">
+                    main page
+                </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
         <div class="container-fluid mt-5">
     <div class="row justify-content-center">
-    <div class="col-4">
+    <div class="col-6">
     <br><br>
-        <table class="table">
+        <table class="table table-borderless">
           <thead>
             <tr>
+                <th class="main_text" style="color: aquamarine" scope="col"></th>
                 <th class="main_text" style="color: aquamarine" scope="col"><h3>Name</h3></th>
                 <th class="main_text" style="color: aquamarine" scope="col"><h3>Size</h3></th>
             </tr>
@@ -15,6 +30,11 @@
           <tbody>
             <tr>
                 {% for fileObj in file %}
+                    <td>
+                    <a  type="button" class="btn-close" aria-label="Close"
+                        href="{{ url_for('delited', name=fileObj['path']) }}" >
+                    </a>
+                    </td>
 
                     <td>
                         <a style="color: aquamarine" href="{{ url_for('get_file', reqPath=fileObj['path']) }}">

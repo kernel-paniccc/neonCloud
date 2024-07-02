@@ -1,4 +1,4 @@
-from flask import request, render_template, redirect, flash, session, send_file
+from flask import request, render_template, redirect, flash, session, send_file, url_for
 from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from main_mod import app, db
@@ -74,17 +74,31 @@ def get_file(reqPath):
     try:
         id = session['id']
         absPath = f'user_files/{str(id)}/{str(reqPath)}'
+        dir = f'user_files/{str(id)}'
         if os.path.isfile(absPath):
             return send_file(f"../{str(absPath)}")
 
         all_files = os.scandir(f'user_files/{str(id)}')
         files = [get_fInfo(x) for x in all_files]
+        if len(os.listdir(dir)) == 0:
+            flash('ваша папка пуста', category='error')
+            return redirect('/')
+
 
         return render_template('file_page.html', file=files)
 
     except FileNotFoundError:
         flash('ваша папка пуста', category='error')
         return redirect('/')
+
+@app.route('/del')
+@app.route('/del/<path:name>')
+@login_required
+def delited(name):
+    id = session['id']
+    path = f'user_files/{str(id)}/{str(name)}'
+    os.remove(path)
+    return redirect('/get_file')
 
 
 @app.after_request
