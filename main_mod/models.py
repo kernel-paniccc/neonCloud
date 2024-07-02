@@ -1,5 +1,6 @@
 from flask_login import UserMixin
 from main_mod import db, manager
+import os
 
 
 class User(db.Model, UserMixin):
@@ -10,12 +11,22 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<Article %r>' % self.idpythn
 
-# class File(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     filename = db.Column(db.String(100), nullable=False)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
 
 @manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
+
+def getReadableByteSize(num, suffix='B') -> str:
+    for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Yi', suffix)
+
+
+def get_fInfo(x):
+    fStat = x.stat()
+    fByte = getReadableByteSize(fStat.st_size)
+    pFile = x.name
+    return {'name': x.name, 'size': fByte, 'path': pFile}

@@ -1,10 +1,9 @@
-from flask import request, render_template, redirect, flash, session
+from flask import request, render_template, redirect, flash, session, send_file
 from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from main_mod import app, db
-from main_mod.models import User
+from main_mod.models import User, get_fInfo
 import os
-
 
 @app.route('/', methods=['GET', 'POST'])
 @login_required
@@ -66,6 +65,26 @@ def login():
 def logout():
     logout_user()
     return redirect('/login')
+
+
+@app.route('/get_file/',  methods=['GET', 'POST'], defaults={'reqPath': ''})
+@app.route('/get_file/<path:reqPath>')
+@login_required
+def get_file(reqPath):
+    try:
+        id = session['id']
+        absPath = f'user_files/{str(id)}/{str(reqPath)}'
+        if os.path.isfile(absPath):
+            return send_file(f"../{str(absPath)}")
+
+        all_files = os.scandir(f'user_files/{str(id)}')
+        files = [get_fInfo(x) for x in all_files]
+
+        return render_template('file_page.html', file=files)
+
+    except FileNotFoundError:
+        flash('ваша папка пуста', category='error')
+        return redirect('/')
 
 
 @app.after_request

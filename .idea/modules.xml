@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/pythonProject12.iml" filepath="$PROJECT_DIR$/.idea/pythonProject12.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/neonCloud.iml" filepath="$PROJECT_DIR$/.idea/neonCloud.iml" />
     </modules>
   </component>
 </project>

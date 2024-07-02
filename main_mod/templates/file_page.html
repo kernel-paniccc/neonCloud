@@ -1,10 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+        <div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+    <div class="col-4">
+    <br><br>
+        <table class="table">
+          <thead>
+            <tr>
+                <th class="main_text" style="color: aquamarine" scope="col"><h3>Name</h3></th>
+                <th class="main_text" style="color: aquamarine" scope="col"><h3>Size</h3></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+                {% for fileObj in file %}
+
+                    <td>
+                        <a style="color: aquamarine" href="{{ url_for('get_file', reqPath=fileObj['path']) }}">
+                            {{fileObj['name']}}
+                        </a>
+                    </td>
+
+                    <td>{{fileObj['size']}}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+    </div>
+    </div>
+    </div>
+
+
+
+{% endblock %}
