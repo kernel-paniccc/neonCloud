@@ -1,5 +1,8 @@
 from flask_login import UserMixin
 from main_mod import db, manager
+import random
+import string
+
 import os
 
 
@@ -31,3 +34,8 @@ def get_fInfo(x):
     fByte = getReadableByteSize(fStat.st_size)
     pFile = x.name
     return {'name': x.name, 'size': fByte, 'path': pFile}
+
+def generate_random_string(length):
+    characters = string.ascii_letters + string.digits
+    random_string = ''.join(random.choice(characters) for _ in range(length))
+    return random_string

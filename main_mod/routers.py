@@ -2,9 +2,8 @@ from flask import request, render_template, redirect, flash, session, send_file
 from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from main_mod import app, db
-from main_mod.models import User, get_fInfo
+from main_mod.models import User, get_fInfo, generate_random_string
 from main_mod.mail_send import send_ya_mail
-from random import randint
 import os
 
 @app.route('/', methods=['GET', 'POST'])
@@ -74,10 +73,14 @@ def logout():
 
 @app.route('/send', methods=['get','POST'])
 def send_msg():
-    code = randint(100000, 999999)
-    session['2fa'] = code
-    send_ya_mail(str(session['email']), f'You secret code for 2FA: {code}')
-    return redirect('/2fa')
+    try:
+        code = generate_random_string(12)
+        session['2fa'] = code
+        send_ya_mail(str(session['email']), f'You secret code for 2FA: {code}')
+        return redirect('/2fa')
+    except KeyError:
+        return redirect('/')
+
 
 @app.route('/2fa', methods=['GET', 'POST'])
 def two_factor():
@@ -91,6 +94,7 @@ def two_factor():
         if str(token) == str(code):
             login_user(user)
             session.pop('2fa')
+            session.pop('email')
             code = None
             return redirect('/')
         else:
