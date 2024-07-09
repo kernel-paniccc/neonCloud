@@ -1,11 +1,15 @@
 import smtplib
-import main_mod.sec
 from email.mime.text import MIMEText
 from email.header import Header
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 def send_ya_mail(recipients_emails: str, msg_text: str):
-    login = main_mod.sec.login
-    password = main_mod.sec.password
+    login = os.getenv("EMAIL")
+    password = os.getenv("PASS")
 
     msg = MIMEText(f'{msg_text}', 'plain', 'utf-8')
     msg['Subject'] = Header('Yor code for Neon Cloud', 'utf-8')

@@ -1,5 +1,5 @@
 from flask import request, render_template, redirect, flash, session, send_file
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from main_mod import app, db
 from main_mod.models import User, get_fInfo, generate_random_string
@@ -27,6 +27,8 @@ def main():
 
 @app.route('/registration', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        logout_user()
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
@@ -50,6 +52,8 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        logout_user()
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -77,6 +81,7 @@ def send_msg():
         code = generate_random_string(12)
         session['2fa'] = code
         send_ya_mail(str(session['email']), f'You secret code for 2FA: {code}')
+        flash("токен отправлен на почту", category='success')
         return redirect('/2fa')
     except KeyError:
         return redirect('/')
@@ -133,10 +138,13 @@ def get_file(reqPath):
 @app.route('/del/<path:name>')
 @login_required
 def delited(name):
-    id = session['id']
-    path = f'user_files/{str(id)}/{str(name)}'
-    os.remove(path)
-    return redirect('/get_file')
+    try:
+        id = session['id']
+        path = f'user_files/{str(id)}/{str(name)}'
+        os.remove(path)
+        return redirect('/get_file')
+    except OSError:
+        return redirect('/')
 
 @app.after_request
 def redirect_to_signin(response):
