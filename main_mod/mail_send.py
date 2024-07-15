@@ -1,7 +1,6 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
-
 from dotenv import load_dotenv
 import os
 

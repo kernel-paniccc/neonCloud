@@ -3,8 +3,6 @@ from main_mod import db, manager
 import random
 import string
 
-import os
-
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -21,7 +19,7 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
-def getReadableByteSize(num, suffix='B') -> str:
+def get_readable_byte_size(num, suffix='B') -> str:
     for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
         if abs(num) < 1024.0:
             return "%3.1f%s%s" % (num, unit, suffix)
@@ -29,11 +27,12 @@ def getReadableByteSize(num, suffix='B') -> str:
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
 
-def get_fInfo(x):
-    fStat = x.stat()
-    fByte = getReadableByteSize(fStat.st_size)
-    pFile = x.name
-    return {'name': x.name, 'size': fByte, 'path': pFile}
+def get_info(x):
+    fstat = x.stat()
+    fbyte = get_readable_byte_size(fstat.st_size)
+    pfile = x.name
+    return {'name': x.name, 'size': fbyte, 'path': pfile}
+
 
 def generate_random_string(length):
     characters = string.ascii_letters + string.digits

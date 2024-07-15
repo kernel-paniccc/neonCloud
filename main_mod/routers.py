@@ -2,9 +2,10 @@ from flask import request, render_template, redirect, flash, session, send_file
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from main_mod import app, db
-from main_mod.models import User, get_fInfo, generate_random_string
+from main_mod.models import User, get_info, generate_random_string
 from main_mod.mail_send import send_ya_mail
 import os
+
 
 @app.route('/', methods=['GET', 'POST'])
 @login_required
@@ -54,9 +55,11 @@ def register():
 def login():
     if current_user.is_authenticated:
         logout_user()
+    if session.get('username'):
+        session.pop('username')
+
     username = request.form.get('username')
     password = request.form.get('password')
-
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password, password):
         session['id'] = user.id
@@ -65,7 +68,6 @@ def login():
         return redirect('/2fa')
     else:
         flash('некорректные данные', category='error')
-
     return render_template('login_page.html')
 
 
@@ -75,7 +77,8 @@ def logout():
     logout_user()
     return redirect('/login')
 
-@app.route('/send', methods=['get','POST'])
+
+@app.route('/send', methods=['GET', 'POST'])
 def send_msg():
     try:
         code = generate_random_string(12)
@@ -90,6 +93,9 @@ def send_msg():
 @app.route('/2fa', methods=['GET', 'POST'])
 def two_factor():
     try:
+        if not(session.get('username')):
+            flash('вы не зарегистрированы', category='error')
+            return redirect('/login')
         username = session['username']
         user = User.query.filter_by(username=username).first()
         token = request.form.get('token')
@@ -110,29 +116,28 @@ def two_factor():
         return render_template('2fa.html')
 
 
+
 @app.route('/get_file/',  methods=['GET', 'POST'], defaults={'reqPath': ''})
 @app.route('/get_file/<path:reqPath>')
 @login_required
 def get_file(reqPath):
     try:
         id = session['id']
-        absPath = f'user_files/{str(id)}/{str(reqPath)}'
+        abs_path = f'user_files/{str(id)}/{str(reqPath)}'
         dir = f'user_files/{str(id)}'
-        if os.path.isfile(absPath):
-            return send_file(f"../{str(absPath)}")
+        if os.path.isfile(abs_path):
+            return send_file(f"../{str(abs_path)}")
 
         all_files = os.scandir(f'user_files/{str(id)}')
-        files = [get_fInfo(x) for x in all_files]
+        files = [get_info(x) for x in all_files]
         if len(os.listdir(dir)) == 0:
             flash('ваша папка пуста', category='error')
             return redirect('/')
-
-
         return render_template('file_page.html', file=files)
-
     except FileNotFoundError:
         flash('ваша папка пуста', category='error')
         return redirect('/')
+
 
 @app.route('/del')
 @app.route('/del/<path:name>')
@@ -145,6 +150,7 @@ def delited(name):
         return redirect('/get_file')
     except OSError:
         return redirect('/')
+
 
 @app.after_request
 def redirect_to_signin(response):
