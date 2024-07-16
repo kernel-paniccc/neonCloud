@@ -1,1 +1,2 @@
-neonCloud - this is my simple project which is a data storage with 2fa. 
+neonCloud - this is my simple project. 
+it represents a 2fa data storeusing a flask. (cloud on flask)
