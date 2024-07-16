@@ -66,7 +66,7 @@ def login():
         session['username'] = user.username
 
         return redirect('/2fa')
-    else:
+    elif user != password:
         flash('некорректные данные', category='error')
     return render_template('login_page.html')
 
@@ -115,7 +115,19 @@ def two_factor():
     except KeyError:
         return render_template('2fa.html')
 
+@app.route('/forgot_pass', methods=['GET', 'POST'])
+def forgot_password():
+    try:
+        token = request.form.get('token')
+        username = request.form.get('username')
+        if request.method == 'POST':
+            user = User.query.filter_by(username=username).first()
 
+
+    except AttributeError:
+        flash('пользователь не найден', category='error')
+        return redirect('/login')
+    return render_template('reset_pass.html')
 
 @app.route('/get_file/',  methods=['GET', 'POST'], defaults={'reqPath': ''})
 @app.route('/get_file/<path:reqPath>')

@@ -11,32 +11,39 @@
             <div class="card">
                 <div class="card-header text-center">
                    <h1 class="main_text">
-                  Login
+                       Reset password
                    </h1>
                 </div>
+
                 <div class="card-body">
                     <form action="" method="POST">
-                        <div class="form-group">
-                            <label for="username" style="color: aquamarine;"><b>Username</b></label>
+                                 <div class="form-group">
+                            <label for="username" style="color: aquamarine;"><b>username</b></label>
                             <input type="text" id="username" name="username" class="form-control" required>
-                        </div>
-                        <br>
-                        <div class="form-group">
-                            <label for="password" style="color: aquamarine;"><b>Password</b></label>
-                            <input type="password" id="password" name="password" class="form-control" required>
-                        </div>
-                        <div class="container text-start">
-                            <a style="color: aquamarine; font-family: 'Archivo Black'; font-size: 14px"
-                               href="forgot_pass">Forgot password?</a>
                         </div>
                         <br>
                         <div class="container text-center">
                         <button type="submit" style=" --bs-btn-padding-y: 0.4rem; --bs-btn-padding-x: 6rem; --bs-btn-font-size: 1rem;
                       color: aquamarine; border: 3px solid aquamarine; font-family:'Archivo Black';" class="btn btn-dark">
-                            sing_in
+                            get token
                         </button>
                         </div>
+                    </form>
+                </div>
 
+                <div class="card-body">
+                    <form action="" method="POST">
+                        <div class="form-group">
+                            <label for="username" style="color: aquamarine;"><b>Token</b></label>
+                            <input type="text" id="token" name="token" class="form-control" required>
+                        </div>
+                        <br>
+                        <div class="container text-center">
+                        <button type="submit" style=" --bs-btn-padding-y: 0.4rem; --bs-btn-padding-x: 6rem; --bs-btn-font-size: 1rem;
+                      color: aquamarine; border: 3px solid aquamarine; font-family:'Archivo Black';" class="btn btn-dark">
+                            send token
+                        </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -44,24 +51,11 @@
     </div>
 </div>
 
-     <div class="container mt-5 text-center">
-        <div class="row justify-content-center">
-        <div class="col-md-6">
-
-            <div class="d-grid gap-2">
-                <a href="/registration" role="button" style="color: aquamarine; border: 3px solid aquamarine; font-family:'Archivo Black'; font-size: 15px"
-                        class="btn btn-dark">
-                    registration
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
 
 
     <div class="container mt-5 text-center">
         <div class="row justify-content-center">
-        <div class="col-md-6">
+            <div class="col-md-6">
     {% for cat, msg in get_flashed_messages(True) %}
         <div id ="popup" class="flash {{cat}}"><h3><b>{{msg}}</b></h3></div>
     {% endfor %}
