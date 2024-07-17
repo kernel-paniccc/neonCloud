@@ -123,7 +123,6 @@ def forgot_password():
         if request.method == 'POST':
             user = User.query.filter_by(username=username).first()
 
-
     except AttributeError:
         flash('пользователь не найден', category='error')
         return redirect('/login')
