@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from main_mod import app, db
 from main_mod.mail_send import send_ya_mail
 from main_mod.models import User, get_info, generate_random_string
-
+import base64
 
 @app.route('/', methods=['GET', 'POST'])
 @login_required
@@ -42,12 +42,12 @@ def register():
                 flash('пароли не совпадают ', category='error')
             elif "@" not in str(email):
                 flash('неверный адрес почты ', category='error')
-            else:
+            else: 
                 pass_hash = generate_password_hash(password)
                 new_user = User(username=username, password=pass_hash, email=email)
                 db.session.add(new_user)
                 db.session.commit()
-                return redirect("/login")
+                return redirect("/login") 
         except:
             flash("имя пользователя уже занято", category='error')
     return render_template("register_page.html")
