@@ -83,6 +83,8 @@ def logout():
 @app.route('/send', methods=['GET', 'POST'])
 def send_msg():
     try:
+        if current_user.is_authenticated:
+            logout_user()
         session['2fa'] = generate_random_string(12)
         send_ya_mail(str(session['email']), f'You secret code for 2FA: {str(session["2fa"])}')
         flash("токен отправлен на почту", category='success')
@@ -94,22 +96,22 @@ def send_msg():
 @app.route('/2fa', methods=['GET', 'POST'])
 def two_factor():
     try:
-        code = None
+        if current_user.is_authenticated:
+            logout_user()
         if not(session.get('username')):
             flash('вы не зарегистрированы', category='error')
             return redirect('/login')
-        if request.method == 'POST':
-            username = session['username']
-            user = User.query.filter_by(username=username).first()
-            token = request.form.get('token')
-            session['email'] = user.email
-            code = session['2fa']
-            if str(token) == str(code):
-                login_user(user)
-                session.pop('2fa'), session.pop('email')
-                return redirect('/')
-            elif (token != None and code != None) and str(token) != str(code):
-                flash("неверный токен авторизации", category='error')
+        user = User.query.filter_by(username=session['username']).first()
+        token = request.form.get('token')
+        session['email'] = user.email
+        code = session['2fa']
+        if str(token) == str(code):
+            login_user(user)
+            session.pop('2fa'), session.pop('email')
+            code = None
+            return redirect('/')
+        elif (token != None and code != None) and str(token) != str(code):
+            flash("неверный токен авторизации", category='error')
         return render_template('2fa.html')
     except KeyError:
         return render_template('2fa.html')
@@ -117,6 +119,8 @@ def two_factor():
 @app.route('/forgot_pass', methods=['GET', 'POST'])
 def forgot_password():
     try:
+        if current_user.is_authenticated:
+            logout_user()
         username = request.form.get('username')
         token = request.form.get('token')
         if request.method == 'POST':
@@ -137,14 +141,27 @@ def forgot_password():
         if username != None:
             flash('пользователь не найден', category='error')
     except KeyError:
-        print('vwvjj')
-    return render_template('reset_pass.html')
+        return redirect('/')
+    return render_template('get_pass_token.html')
 
 @app.route('/new_pass_for/<path:name>', methods=['GET', 'POST'])
 def refactor_user_password(name):
-    session.pop('username')
-    # logic for reset pass
-    return f'{name}'
+
+    if current_user.is_authenticated:
+        logout_user()
+    user = User.query.filter_by(username=name).first()
+    if request.method == 'POST':
+        password = request.form.get('password')
+        password_return = request.form.get('password_return')
+        if password != password_return:
+            flash('пароли не совпадают ', category='error')
+        if password == password_return:
+            pass_hash = generate_password_hash(password)
+            user.password = pass_hash
+            db.session.commit()
+            flash('пароль изменен ', category='success')
+            return redirect('/login')
+    return render_template('reset_password.html')
 
 
 @app.route('/get_file/',  methods=['GET', 'POST'], defaults={'reqPath': ''})
