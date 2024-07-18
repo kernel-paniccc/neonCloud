@@ -1,10 +1,12 @@
+import os
+
 from flask import request, render_template, redirect, flash, session, send_file
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
+
 from main_mod import app, db
-from main_mod.models import User, get_info, generate_random_string
 from main_mod.mail_send import send_ya_mail
-import os
+from main_mod.models import User, get_info, generate_random_string
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -81,9 +83,8 @@ def logout():
 @app.route('/send', methods=['GET', 'POST'])
 def send_msg():
     try:
-        code = generate_random_string(12)
-        session['2fa'] = code
-        send_ya_mail(str(session['email']), f'You secret code for 2FA: {code}')
+        session['2fa'] = generate_random_string(12)
+        send_ya_mail(str(session['email']), f'You secret code for 2FA: {str(session["2fa"])}')
         flash("токен отправлен на почту", category='success')
         return redirect('/2fa')
     except KeyError:
@@ -93,23 +94,21 @@ def send_msg():
 @app.route('/2fa', methods=['GET', 'POST'])
 def two_factor():
     try:
+        code = None
         if not(session.get('username')):
             flash('вы не зарегистрированы', category='error')
             return redirect('/login')
-        username = session['username']
-        user = User.query.filter_by(username=username).first()
-        token = request.form.get('token')
-        email = user.email
-        session['email'] = email
-        code = session['2fa']
-        if str(token) == str(code):
-            login_user(user)
-            session.pop('2fa')
-            session.pop('email')
-            code = None
-            return redirect('/')
-        else:
-            if (token != None and code != None) and str(token) != str(code):
+        if request.method == 'POST':
+            username = session['username']
+            user = User.query.filter_by(username=username).first()
+            token = request.form.get('token')
+            session['email'] = user.email
+            code = session['2fa']
+            if str(token) == str(code):
+                login_user(user)
+                session.pop('2fa'), session.pop('email')
+                return redirect('/')
+            elif (token != None and code != None) and str(token) != str(code):
                 flash("неверный токен авторизации", category='error')
         return render_template('2fa.html')
     except KeyError:
@@ -118,15 +117,35 @@ def two_factor():
 @app.route('/forgot_pass', methods=['GET', 'POST'])
 def forgot_password():
     try:
-        token = request.form.get('token')
         username = request.form.get('username')
+        token = request.form.get('token')
         if request.method == 'POST':
-            user = User.query.filter_by(username=username).first()
-
+            if token == None:
+                session['username'] = username
+                code = generate_random_string(20)
+                session['code'] = code
+                user = User.query.filter_by(username=username).first()
+                send_ya_mail(str(user.email), f'You token for reset password: {str(code)}')
+                flash("токен отправлен на почту", category='success')
+            code = session['code']
+            if str(token) == str(code):
+                session.pop('code')
+                return redirect(f'/new_pass_for/{session["username"]}')
+            elif (token != None and code != None) and str(token) != str(code):
+                flash("неверный токен авторизации", category='error')
     except AttributeError:
-        flash('пользователь не найден', category='error')
-        return redirect('/login')
+        if username != None:
+            flash('пользователь не найден', category='error')
+    except KeyError:
+        print('vwvjj')
     return render_template('reset_pass.html')
+
+@app.route('/new_pass_for/<path:name>', methods=['GET', 'POST'])
+def refactor_user_password(name):
+    session.pop('username')
+    # logic for reset pass
+    return f'{name}'
+
 
 @app.route('/get_file/',  methods=['GET', 'POST'], defaults={'reqPath': ''})
 @app.route('/get_file/<path:reqPath>')
