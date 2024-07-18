@@ -1,8 +1,7 @@
-import os
-
 from flask import request, render_template, redirect, flash, session, send_file
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
+import os
 
 from src import app, db
 from src.mail_send import send_ya_mail
@@ -30,6 +29,7 @@ def main():
 
 @app.route('/registration', methods=['GET', 'POST'])
 def register():
+    session.clear()
     if current_user.is_authenticated:
         logout_user()
     if request.method == 'POST':
@@ -55,11 +55,9 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    session.clear()
     if current_user.is_authenticated:
         logout_user()
-    if session.get('username'):
-        session.pop('username')
-
     username = request.form.get('username')
     password = request.form.get('password')
     user = User.query.filter_by(username=username).first()
@@ -104,13 +102,11 @@ def two_factor():
         user = User.query.filter_by(username=session['username']).first()
         token = request.form.get('token')
         session['email'] = user.email
-        code = session['2fa']
-        if str(token) == str(code):
+        if str(token) == str(session['2fa']):
             login_user(user)
             session.pop('2fa'), session.pop('email')
-            code = None
             return redirect('/')
-        elif (token != None and code != None) and str(token) != str(code):
+        elif (token != None and session['2fa'] != None) and str(token) != str(session['2fa']):
             flash("неверный токен авторизации", category='error')
         return render_template('2fa.html')
     except KeyError:
@@ -134,6 +130,7 @@ def forgot_password():
             code = session['code']
             if str(token) == str(code):
                 session.pop('code')
+                session['redirect'] = session['username']
                 return redirect(f'/new_pass_for/{session["username"]}')
             elif (token != None and code != None) and str(token) != str(code):
                 flash("неверный токен авторизации", category='error')
@@ -146,21 +143,28 @@ def forgot_password():
 
 @app.route('/new_pass_for/<path:name>', methods=['GET', 'POST'])
 def refactor_user_password(name):
-
-    if current_user.is_authenticated:
-        logout_user()
-    user = User.query.filter_by(username=name).first()
-    if request.method == 'POST':
-        password = request.form.get('password')
-        password_return = request.form.get('password_return')
-        if password != password_return:
-            flash('пароли не совпадают ', category='error')
-        if password == password_return:
-            pass_hash = generate_password_hash(password)
-            user.password = pass_hash
-            db.session.commit()
-            flash('пароль изменен ', category='success')
+    try:
+        if session['redirect'] != name:
+            flash('вы не зарегистрированны', category='error')
             return redirect('/login')
+        if current_user.is_authenticated:
+            logout_user()
+        user = User.query.filter_by(username=name).first()
+        if request.method == 'POST':
+            password = request.form.get('password')
+            password_return = request.form.get('password_return')
+            if password != password_return:
+                flash('пароли не совпадают ', category='error')
+            if password == password_return:
+                pass_hash = generate_password_hash(password)
+                user.password = pass_hash
+                db.session.commit()
+                flash('пароль изменен ', category='success')
+                session.pop('redirect')
+                return redirect('/login')
+    except KeyError:
+        flash('вы не зарегистрированны', category='error')
+        return redirect('/login')
     return render_template('reset_password.html')
 
 
