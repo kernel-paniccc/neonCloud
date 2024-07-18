@@ -4,9 +4,9 @@ from flask import request, render_template, redirect, flash, session, send_file
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from main_mod import app, db
-from main_mod.mail_send import send_ya_mail
-from main_mod.models import User, get_info, generate_random_string
+from src import app, db
+from src.mail_send import send_ya_mail
+from src.models import User, get_info, generate_random_string
 
 
 @app.route('/', methods=['GET', 'POST'])

@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from main_mod import db, manager
+from src import db, manager
 import random
 import string
 

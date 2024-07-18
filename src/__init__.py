@@ -14,8 +14,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 manager = LoginManager(app)
-from main_mod import models, routers
+from src import models, routers
 
-# from main_mod import app, db
+# from src import app, db
 # app.app_context().push()
 # db.create_all()
